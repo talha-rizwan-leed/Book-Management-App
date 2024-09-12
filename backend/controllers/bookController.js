@@ -47,7 +47,7 @@ export const createBook = asyncHandler(async (req, res) => {
     const token = req.cookies.jwt;
     if (token) {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const { title, author, genre, imageUrl, readStatus,reviews } = req.body;
+        const { title, author, genre, imageUrl, readStatus, reviews } = req.body;
         try {
             const newBook = new Book({
                 title,
@@ -55,12 +55,12 @@ export const createBook = asyncHandler(async (req, res) => {
                 genre,
                 readStatus,
                 imageUrl,
-                reviews:[],
+                reviews: [],
                 userId: decoded.userId
             });
 
             const book = await newBook.save();
-            
+
             // console.log(token)
             res.status(201).json(book);
         } catch (error) {
@@ -143,25 +143,19 @@ export const createReview = asyncHandler(async (req, res) => {
     const token = req.cookies.jwt;
     if (token) {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const { rating,                review,
-        } = req.body;
+        const { rating, review} = req.body;
         const bookId = req.params.id;
-
-        // // Create a new review document in your database
-        // const newReview = await Review.create({ book: bookId, ...review });
-        // res.status(201).json(newReview);
 
         try {
             const book = await Book.findById(bookId);
             if (!book) {
                 return res.status(404).json({ message: 'Book not found' });
             }
-            // console.log(book)
 
             const newReview = {
                 rating,
                 review,
-                // userId: decoded.userId
+                userId: decoded.userId
             };
 
             book.reviews.push(newReview);
