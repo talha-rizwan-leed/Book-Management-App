@@ -4,7 +4,7 @@ import express from 'express';
 import { protect } from '../middleware/authMiddleware.js';
 import jwt from 'jsonwebtoken';
 
-// console.log(jwt)
+
 const router = express.Router();
 router.use(protect);
 
@@ -45,6 +45,7 @@ export const getAllBooks = asyncHandler(async (req, res) => {
 // Create a new book
 export const createBook = asyncHandler(async (req, res) => {
     const token = req.cookies.jwt;
+    console.log(token)
     if (token) {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const { title, author, genre, imageUrl, readStatus, reviews } = req.body;
@@ -56,12 +57,12 @@ export const createBook = asyncHandler(async (req, res) => {
                 readStatus,
                 imageUrl,
                 reviews: [],
-                userId: decoded.userId
+                userId: decoded.userId,
+                token:token
             });
 
             const book = await newBook.save();
 
-            // console.log(token)
             res.status(201).json(book);
         } catch (error) {
             res.status(500).json(error.message);
@@ -94,7 +95,6 @@ export const updateBook = asyncHandler(async (req, res) => {
     const token = req.cookies.jwt;
     if (token) {
         const { title, author, genre, readStatus } = req.body;
-        // console.log(req.body);
 
         try {
             const book = await Book.findById(req.params.id);
@@ -124,7 +124,6 @@ export const deleteBook = asyncHandler(async (req, res) => {
     if (token) {
         try {
             const book = await Book.findById(req.params.id);
-            // console.log(req.params.id)
             if (!book) {
                 return res.status(404).json({ message: 'Book not found' });
             }
